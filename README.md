@@ -20,7 +20,7 @@ Completed and archived tasks (Status 1 and 2) are skipped by default — only ac
 
 ## Requirements
 
-- Python 3.9+
+- Python 3.14+
 - [`icalendar`](https://pypi.org/project/icalendar/) library
 
 ## Installation
@@ -66,6 +66,26 @@ python ticktick_to_ical.py backup.csv -v
 
 The script creates one `.ics` file per TickTick list (e.g. `Work.ics`, `Inbox.ics`). Import these files into your calendar application of choice.
 
+## Development
+
+Install dev dependencies (includes [ruff](https://docs.astral.sh/ruff/) for linting and formatting):
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+Format code:
+
+```bash
+ruff format .
+```
+
+Lint code:
+
+```bash
+ruff check .
+```
+
 ## Running Tests
 
 ```bash
@@ -77,7 +97,9 @@ python -m unittest discover -s tests
 ```
 ticktick-to-ical/
 ├── ticktick_to_ical.py        # Main conversion script
-├── requirements.txt           # Python dependencies
+├── requirements.txt           # Runtime dependencies
+├── requirements-dev.txt       # Dev dependencies (ruff)
+├── CLAUDE.md                  # Instructions for Claude Code
 ├── tests/
 │   ├── test_ticktick_to_ical.py
 │   └── fixtures/
