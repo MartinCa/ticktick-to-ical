@@ -31,6 +31,12 @@ cd ticktick-to-ical
 pip install -r requirements.txt
 ```
 
+For development (includes linting/formatting tools):
+
+```bash
+pip install -r requirements-dev.txt
+```
+
 ## Usage
 
 Export your tasks from TickTick: **Settings → Data Backup → Export**. This downloads a `.csv` file.
