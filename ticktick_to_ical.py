@@ -72,6 +72,7 @@ def sanitize_filename(name):
     name = re.sub(r'[<>:"/\\|?*]', "_", name)
     name = name.strip(". ")
     name = name[:MAX_FILENAME_LEN]
+    name = name.strip(". ")
     return name or "Untitled"
 
 
@@ -97,7 +98,7 @@ def parse_subtasks(content):
 
 def _subtask_uid(parent_uid, title):
     """Generate a stable subtask UID based on parent UID and subtask title."""
-    digest = hashlib.sha256(title.encode()).hexdigest()[:8]
+    digest = hashlib.sha256(f"{parent_uid}:{title}".encode()).hexdigest()[:8]
     return f"{parent_uid}-sub-{digest}"
 
 
@@ -112,11 +113,9 @@ def build_todo(item):
     is_all_day = item["Is All Day"] == "true"
     created_dt = parse_iso(item["Created Time"])
     status = STATUS.get(item["Status"], "NEEDS-ACTION")
-    now = datetime.now(timezone.utc)
-
     todo = Todo()
     todo.add("uid", uid)
-    todo.add("created", now)
+    todo.add("created", created_dt)
     todo.add("summary", item["Title"])
 
     is_checklist = item["Is Check list"] == "Y"
@@ -129,7 +128,7 @@ def build_todo(item):
                 for title, completed in subtasks:
                     sub = Todo()
                     sub.add("uid", _subtask_uid(uid, title))
-                    sub.add("created", now)
+                    sub.add("created", created_dt)
                     sub.add("summary", title)
                     sub.add("related-to", uid)
                     sub.add("status", "COMPLETED" if completed else "NEEDS-ACTION")
@@ -137,9 +136,14 @@ def build_todo(item):
                     subtask_todos.append(sub)
             else:
                 # Checklist flag set but no markers found — preserve as description
-                todo.add("description", item["Content"].replace("\r", "\n"))
+                todo.add(
+                    "description",
+                    item["Content"].replace("\r\n", "\n").replace("\r", "\n"),
+                )
         else:
-            todo.add("description", item["Content"].replace("\r", "\n"))
+            todo.add(
+                "description", item["Content"].replace("\r\n", "\n").replace("\r", "\n")
+            )
 
     if item["Due Date"]:
         todo.add("due", parse_date(item["Due Date"], tz_name, is_all_day))
@@ -198,7 +202,7 @@ def main():
     counts = defaultdict(int)  # tasks per list
     skipped = 0
 
-    with open(args.input) as backup:
+    with open(args.input, newline="", encoding="utf-8") as backup:
         # Skip TickTick metadata lines until we reach the CSV header row
         for line in backup:
             if line.startswith(f'"{HEADER_MARKER}"'):

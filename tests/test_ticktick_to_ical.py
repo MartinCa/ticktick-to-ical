@@ -164,6 +164,17 @@ class TestSanitizeFilename(TestCase):
         result = sanitize_filename(long_name)
         self.assertLessEqual(len(result), 200)
 
+    def test_truncation_strips_trailing_dots(self):
+        name = "A" * 197 + "..."
+        result = sanitize_filename(name)
+        self.assertFalse(result.endswith("."))
+        self.assertEqual(result, "A" * 197)
+
+    def test_truncation_strips_trailing_spaces(self):
+        name = "B" * 198 + "  " + "C" * 50
+        result = sanitize_filename(name)
+        self.assertFalse(result.endswith(" "))
+
 
 # ---------------------------------------------------------------------------
 # parse_subtasks
@@ -421,6 +432,39 @@ class TestBuildTodo(TestCase):
         todo, _ = build_todo(item)
         ical = todo.to_ical().decode()
         self.assertNotIn("COMPLETED", ical)
+
+    def test_created_uses_csv_creation_time(self):
+        item = make_item(**{"Created Time": "2020-02-24T06:36:53+0000"})
+        todo, _ = build_todo(item)
+        ical = todo.to_ical().decode()
+        self.assertIn("CREATED:20200224T063653Z", ical)
+
+    def test_subtask_created_uses_parent_creation_time(self):
+        item = make_item(
+            **{
+                "Is Check list": "Y",
+                "Content": "\u25abSub A\n",
+                "taskId": "500",
+                "Created Time": "2020-02-24T06:36:53+0000",
+            }
+        )
+        _, subtasks = build_todo(item)
+        ical = subtasks[0].to_ical().decode()
+        self.assertIn("CREATED:20200224T063653Z", ical)
+
+    def test_content_crlf_normalized(self):
+        item = make_item(Content="Line one\r\nLine two\r\nLine three")
+        todo, _ = build_todo(item)
+        desc = str(todo["description"])
+        self.assertNotIn("\r", desc)
+        self.assertEqual(desc.count("\n"), 2)
+
+    def test_content_lone_cr_normalized(self):
+        item = make_item(Content="Line one\rLine two")
+        todo, _ = build_todo(item)
+        desc = str(todo["description"])
+        self.assertNotIn("\r", desc)
+        self.assertIn("\n", desc)
 
     def test_priority_is_integer_in_output(self):
         item = make_item(Priority="1")
