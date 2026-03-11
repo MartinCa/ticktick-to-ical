@@ -7,16 +7,15 @@ from itertools import chain
 from unittest import TestCase, main
 
 from ticktick_to_ical import (
+    HEADER_MARKER,
+    _subtask_uid,
     build_todo,
     make_calendar,
     parse_date,
     parse_iso,
     parse_subtasks,
     sanitize_filename,
-    _subtask_uid,
-    HEADER_MARKER,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helper: build a CSV row dict with sensible defaults matching sample.csv
