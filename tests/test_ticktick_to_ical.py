@@ -454,7 +454,7 @@ class TestFullExportWithSampleCSV(TestCase):
         cls.cals = defaultdict(make_calendar)
         cls.active_items = []
 
-        sample_path = os.path.join(os.path.dirname(__file__), "sample.csv")
+        sample_path = os.path.join(os.path.dirname(__file__), "fixtures", "sample.csv")
         with open(sample_path) as backup:
             for line in backup:
                 if line.startswith(f'"{HEADER_MARKER}"'):

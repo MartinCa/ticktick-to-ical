@@ -174,12 +174,14 @@ def main():
         help="path to the TickTick CSV export (default: backup.csv)",
     )
     parser.add_argument(
-        "-o", "--output-dir",
+        "-o",
+        "--output-dir",
         default=".",
         help="directory to write .ics files into (default: current directory)",
     )
     parser.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         action="store_true",
         help="enable verbose logging",
     )
