@@ -14,7 +14,6 @@ from zoneinfo import ZoneInfo
 
 from icalendar import Calendar, Todo, vRecur
 
-
 PRIORITY = {"0": 0, "1": 6, "3": 5, "5": 4}
 
 STATUS = {"0": "NEEDS-ACTION", "1": "COMPLETED", "2": "COMPLETED"}
